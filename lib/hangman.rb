@@ -14,13 +14,13 @@ class HangmanGame
     @incorrect_letters = incorrect_letters
   end
 
-  def begin_turnj
+  def begin_turn
     highline = HighLine.new
     
-    while @attempts_remaining >= 0
+    while @attempts_remaining > 0
       system "clear"
       print_board
-      guess = highline.ask("Guess a letter: ")
+      guess = highline.ask("Guess a letter: ")[0].downcase
 
       if @incorrect_letters.include? guess
         highline.say(already_guessed)
@@ -38,12 +38,15 @@ class HangmanGame
         reveal_letter(guess)
         print_board
         sleep 1
-        highline.say(%{<%=color('You win!\nIt was "#{@word}!"', GREEN)%>})
+        highline.say(%{<%=color("You win!\nIt was '#{@word}!'", GREEN)%>})
         exit
       end
 
       sleep 1
     end # => main turn loop
+
+    highline.say (%{<%=color("You lose :-(\nThe word was '#{@word}'", RED)%>}) if @attempts_remaining == 0
+
   end
 
   def to_yaml
@@ -53,7 +56,7 @@ class HangmanGame
   private
 
   def print_board
-    puts @word
+    # puts @word 
     puts "#{@obscured_word} | Attempts remaining: #{@attempts_remaining}"
     puts "Incorrect guesses:"
     puts "#{@incorrect_letters.join(", ")}"
@@ -113,7 +116,7 @@ class Application
     end
 
     # present selection menu and return a save file
-    highline.say "Choose a save to load: "
+    highline.say "Choose a save to load:\n"
     highline.choose do |menu|
       menu.prompt = "-> "
       filenames.each do |filename|
